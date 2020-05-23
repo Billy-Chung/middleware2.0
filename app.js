@@ -4,10 +4,11 @@ const app = express()
 const port = 3000
 
 app.use(function (req, res, next) {
+    let date = new Date()
+    let reqMethod = req.method
+    let oriGinalUrl = req.originalUrl
     function getDateTime() {
 
-        let date = new Date();        
-        
         let year = date.getFullYear();
 
         let month = date.getMonth() + 1;
@@ -23,15 +24,23 @@ app.use(function (req, res, next) {
         min = (min < 10 ? "0" : "") + min;
 
         let sec = date.getSeconds();
-        sec = (sec < 10 ? "0" : "") + sec;   
-              
+        sec = (sec < 10 ? "0" : "") + sec;
+
         return year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
 
     }
 
-    console.log(getDateTime(), '|', req.method, 'from', req.originalUrl);
     next();
-});
+    res.end();
+    res.on('finish', function (req, res, next) {
+        let returnTime = new Date()
+        let gap = returnTime - date        
+        console.log(getDateTime(), '|', reqMethod, 'from', oriGinalUrl ,'|' ,'total time:', gap,'ms')
+        }   
+
+    )
+
+})
 
 app.get('/', (req, res) => {
     res.send('列出全部 Todo')
